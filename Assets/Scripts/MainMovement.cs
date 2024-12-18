@@ -3,8 +3,8 @@ using System.Collections;
 
 public class MainMovement : MonoBehaviour
 {
-    public float walkSpeed = 1.5f; // Snížená rychlost chùze
-    public float sprintSpeed = 3f; // Snížená rychlost bìhu
+    public float walkSpeed = 1.5f;
+    public float sprintSpeed = 3f;
     public float jumpForce = 6f;
     public Animator animator;
 
@@ -15,9 +15,15 @@ public class MainMovement : MonoBehaviour
     public float turnSpeed = 8;
     private bool isGrounded;
     private bool canJump = true;
+    private bool isRagdollActive = false;
     public float jumpCooldown = 1.32f;
     public float jumpAnimationTime = 0.5f;
     Camera mainCamera;
+
+    // Ragdoll variables
+    private Rigidbody[] ragdollBodies;
+    private Collider[] ragdollColliders;
+    private Collider mainCollider;
 
     void Start()
     {
@@ -25,23 +31,31 @@ public class MainMovement : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         mainCamera = Camera.main;
+
+        // Initialize ragdoll components
+        ragdollBodies = GetComponentsInChildren<Rigidbody>();
+        ragdollColliders = GetComponentsInChildren<Collider>();
+        mainCollider = GetComponent<Collider>();
+
+        // Deactivate ragdoll at the start
+        SetRagdollState(false);
     }
 
     void Update()
     {
-        // Kontrola, zda je postava na zemi
+        // Check if the character is on the ground
         isGrounded = Physics.CheckSphere(transform.position, 0.1f, LayerMask.GetMask("Ground"));
 
-        // Získání vstupu z klávesnice pouze pokud je na zemi
+        // Get keyboard input only if on the ground and ragdoll is not active
         float moveHorizontal = 0f;
         float moveVertical = 0f;
 
-        if (isGrounded)
+        if (isGrounded && !isRagdollActive)
         {
             moveHorizontal = Input.GetAxis("Horizontal");
             moveVertical = Input.GetAxis("Vertical");
 
-            // Pohyb ve smìru kamery
+            // Move in the direction of the camera
             Vector3 forward = mainCamera.transform.forward;
             Vector3 right = mainCamera.transform.right;
 
@@ -53,7 +67,7 @@ public class MainMovement : MonoBehaviour
 
             movement = forward * moveVertical + right * moveHorizontal;
 
-            // Nastavení animací
+            // Set animations
             bool isMoving = movement.sqrMagnitude > 0;
             animator.SetBool("Move", isMoving);
 
@@ -70,7 +84,7 @@ public class MainMovement : MonoBehaviour
                 movement *= walkSpeed;
             }
 
-            // Skok
+            // Jump
             if (Input.GetKeyDown(KeyCode.Space) && isGrounded && canJump)
             {
                 rb.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
@@ -78,29 +92,36 @@ public class MainMovement : MonoBehaviour
                 StartCoroutine(JumpCooldown());
             }
 
-            // Otáèení postavy podle smìru pohybu
+            // Rotate character in the direction of movement
             if (isMoving)
             {
                 Quaternion targetRotation = Quaternion.LookRotation(movement);
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, turnSpeed * Time.deltaTime);
             }
 
-            // Uložení smìru pohybu pro použití ve vzduchu
+            // Save movement direction for use in the air
             airMovement = movement;
+        }
+
+        // Activate ragdoll on pressing R
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            SetRagdollState(true);
+            StartCoroutine(DisableRagdollAfterTime(5f));
         }
     }
 
     void FixedUpdate()
     {
-        // Pohyb postavy
-        if (isGrounded)
+        // Move character
+        if (isGrounded && !isRagdollActive)
         {
             Vector3 newPosition = rb.position + movement * Time.fixedDeltaTime;
             rb.MovePosition(newPosition);
         }
-        else
+        else if (!isGrounded && !isRagdollActive)
         {
-            // Pokraèování v pohybu ve vzduchu
+            // Continue moving in the air
             Vector3 newPosition = rb.position + airMovement * Time.fixedDeltaTime;
             rb.MovePosition(newPosition);
         }
@@ -108,7 +129,7 @@ public class MainMovement : MonoBehaviour
 
     void OnCollisionStay(Collision collision)
     {
-        // Kontrola, zda se dotýkáme vrstvy Ground
+        // Check if touching the Ground layer
         if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
         {
             isGrounded = true;
@@ -117,7 +138,7 @@ public class MainMovement : MonoBehaviour
 
     void OnCollisionExit(Collision collision)
     {
-        // Pokud opustíme kolizi s vrstvou Ground, nejsme na zemi
+        // If leaving collision with the Ground layer, not on the ground
         if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
         {
             isGrounded = false;
@@ -137,7 +158,83 @@ public class MainMovement : MonoBehaviour
         yield return new WaitForSeconds(jumpCooldown);
         canJump = true;
     }
+    // ========================================================================================
+    // Ragdoll functions
+    // ========================================================================================
+    private void SetRagdollState(bool state)
+    {
+        isRagdollActive = state;
+
+        if (state)
+        {
+            // Save current velocity and angular velocity of the main Rigidbody
+            Vector3 savedVelocity = rb.velocity;
+            Vector3 savedAngularVelocity = rb.angularVelocity;
+
+            // Activate ragdoll
+            foreach (Rigidbody ragdollBody in ragdollBodies)
+            {
+                if (ragdollBody != rb)
+                {
+                    ragdollBody.isKinematic = false;
+                    ragdollBody.velocity = savedVelocity;
+                    ragdollBody.angularVelocity = savedAngularVelocity;
+                }
+            }
+
+            foreach (Collider ragdollCollider in ragdollColliders)
+            {
+                if (ragdollCollider != mainCollider)
+                {
+                    ragdollCollider.enabled = true;
+                }
+            }
+
+            // Deactivate animator
+            animator.enabled = false;
+
+            // Deactivate main Rigidbody and Collider
+            rb.isKinematic = true;
+            mainCollider.enabled = false;
+        }
+        else
+        {
+            // Deactivate ragdoll
+            foreach (Rigidbody ragdollBody in ragdollBodies)
+            {
+                if (ragdollBody != rb)
+                {
+                    ragdollBody.isKinematic = true;
+                }
+            }
+
+            foreach (Collider ragdollCollider in ragdollColliders)
+            {
+                if (ragdollCollider != mainCollider)
+                {
+                    ragdollCollider.enabled = false;
+                }
+            }
+
+            // Activate animator
+            animator.enabled = true;
+
+            // Activate main Rigidbody and Collider
+            rb.isKinematic = false;
+            mainCollider.enabled = true;
+        }
+    }
+
+    private IEnumerator DisableRagdollAfterTime(float time)
+    {
+        yield return new WaitForSeconds(time);
+        SetRagdollState(false);
+    }
 }
+
+
+
+
 
 
 
