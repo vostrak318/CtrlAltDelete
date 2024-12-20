@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System;
 
 public class MainMovement : MonoBehaviour
 {
@@ -24,6 +25,10 @@ public class MainMovement : MonoBehaviour
     private Rigidbody[] ragdollBodies;
     private Collider[] ragdollColliders;
     private Collider mainCollider;
+    private Vector3 savedVelocity;
+    //private Vector3 savedAngularVelocity;
+
+    public int ragdollPower = 50;
 
     void Start()
     {
@@ -116,16 +121,24 @@ public class MainMovement : MonoBehaviour
         // Move character
         if (isGrounded && !isRagdollActive)
         {
+            //rb.AddForce(movement * walkSpeed * 10, ForceMode.Impulse);
+
             Vector3 newPosition = rb.position + movement * Time.fixedDeltaTime;
             rb.MovePosition(newPosition);
         }
         else if (!isGrounded && !isRagdollActive)
         {
-            // Continue moving in the air
-            Vector3 newPosition = rb.position + airMovement * Time.fixedDeltaTime;
+            //rb.AddForce(airMovement * walkSpeed * 10, ForceMode.Impulse);
+            
+            Vector3 newPosition = rb.position + airMovement * Time.fixedDeltaTime; //Continue moving in the air
+
+            savedVelocity = newPosition * ragdollPower - rb.position * ragdollPower;
+            Debug.Log(savedVelocity);
+
             rb.MovePosition(newPosition);
         }
     }
+
 
     void OnCollisionStay(Collision collision)
     {
@@ -158,6 +171,7 @@ public class MainMovement : MonoBehaviour
         yield return new WaitForSeconds(jumpCooldown);
         canJump = true;
     }
+
     // ========================================================================================
     // Ragdoll functions
     // ========================================================================================
@@ -167,18 +181,14 @@ public class MainMovement : MonoBehaviour
 
         if (state)
         {
-            // Save current velocity and angular velocity of the main Rigidbody
-            Vector3 savedVelocity = rb.velocity;
-            Vector3 savedAngularVelocity = rb.angularVelocity;
-
             // Activate ragdoll
             foreach (Rigidbody ragdollBody in ragdollBodies)
             {
                 if (ragdollBody != rb)
                 {
                     ragdollBody.isKinematic = false;
-                    ragdollBody.velocity = savedVelocity;
-                    ragdollBody.angularVelocity = savedAngularVelocity;
+                    ragdollBody.AddForce(savedVelocity, ForceMode.VelocityChange);
+                    //ragdollBody.AddTorque(savedAngularVelocity, ForceMode.VelocityChange);
                 }
             }
 
@@ -218,6 +228,7 @@ public class MainMovement : MonoBehaviour
 
             // Activate animator
             animator.enabled = true;
+            animator.Play("IdleAnim");
 
             // Activate main Rigidbody and Collider
             rb.isKinematic = false;
@@ -231,10 +242,5 @@ public class MainMovement : MonoBehaviour
         SetRagdollState(false);
     }
 }
-
-
-
-
-
 
 
