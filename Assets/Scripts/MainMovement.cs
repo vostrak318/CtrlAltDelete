@@ -19,6 +19,7 @@ public class MainMovement : MonoBehaviour
     public float jumpCooldown = 1.32f;
     public float jumpAnimationTime = 0.5f;
     Camera mainCamera;
+    public bool hasSuperJump = false;
 
     // Ragdoll variables
     private Rigidbody[] ragdollBodies;
@@ -157,9 +158,22 @@ public class MainMovement : MonoBehaviour
 
     IEnumerator JumpAnimationTimer()
     {
-        animator.SetBool("Jump", true);
-        yield return new WaitForSeconds(jumpAnimationTime);
-        animator.SetBool("Jump", false);
+        if (!hasSuperJump)
+        {
+            animator.SetBool("Jump", true);
+            yield return new WaitForSeconds(jumpAnimationTime);
+            animator.SetBool("Jump", false);
+        }
+        else
+        {
+            animator.SetBool("SuperJump", true);
+            /*if (!isGrounded)
+            {
+                animator.Play("SuperJump", -1, 0.8f);
+            }*/
+            yield return new WaitForSeconds(jumpAnimationTime);
+            animator.SetBool("SuperJump", false);
+        }
     }
 
     IEnumerator JumpCooldown()
@@ -172,6 +186,7 @@ public class MainMovement : MonoBehaviour
     // ========================================================================================
     // Ragdoll functions
     // ========================================================================================
+
     private void SetRagdollState(bool state)
     {
         isRagdollActive = state;
@@ -245,5 +260,53 @@ public class MainMovement : MonoBehaviour
     {
         yield return new WaitForSeconds(time);
         SetRagdollState(false);
+    }
+
+    // ========================================================================================
+    // Potion functions
+    // ========================================================================================
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("SpeedPotion"))
+        {
+            Destroy(collision.gameObject);
+            StartCoroutine(SpeedPotionEffect());
+        }
+        else if (collision.gameObject.CompareTag("JumpPotion"))
+        {
+            Destroy(collision.gameObject);
+            StartCoroutine(JumpPotionEffect());
+        }
+        else if (collision.gameObject.CompareTag("TimeSlowPotion"))
+        {
+            Destroy(collision.gameObject);
+            StartCoroutine(TimeSlowPotionEffect());
+        }
+    }
+
+    private IEnumerator SpeedPotionEffect()
+    {
+        walkSpeed *= 2;
+        sprintSpeed *= 2;
+        yield return new WaitForSeconds(5);
+        walkSpeed /= 2;
+        sprintSpeed /= 2;
+    }
+
+    private IEnumerator JumpPotionEffect()
+    {
+        jumpForce *= 3;
+        hasSuperJump = true;
+        yield return new WaitForSeconds(5);
+        jumpForce /= 3;
+        hasSuperJump = false;
+    }
+
+    private IEnumerator TimeSlowPotionEffect()
+    {
+        Time.timeScale = 0.5f;
+        yield return new WaitForSecondsRealtime(5);
+        Time.timeScale = 1f;
     }
 }

@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - Item
+  - SpeedPotion
+  - JumpPotion
+  - TimeSlowPotion
   layers:
   - Default
   - TransparentFX

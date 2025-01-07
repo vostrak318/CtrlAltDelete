@@ -11,6 +11,7 @@ public class PickUpScript : MonoBehaviour
     private GameObject heldObj;
     private Rigidbody heldObjRb;
     private bool canDrop = true;
+    private bool canPickUp = true;
     private int LayerNumber;
 
     void Start()
@@ -20,15 +21,15 @@ public class PickUpScript : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E))
+        if (Input.GetKeyDown(KeyCode.E) && canPickUp)
         {
             if (heldObj == null)
             {
                 RaycastHit hit;
                 if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, pickUpRange))
                 {
-                    Debug.Log("Did Hit");
-                    if (hit.transform.gameObject.tag == "Item")
+                    //Debug.Log("Did Hit");
+                    if (hit.transform.gameObject.tag == "Item" || hit.transform.gameObject.tag == "SpeedPotion" || hit.transform.gameObject.tag == "JumpPotion" || hit.transform.gameObject.tag == "TimeSlowPotion")
                     {
                         PickUpObject(hit.transform.gameObject);
                     }
@@ -51,6 +52,16 @@ public class PickUpScript : MonoBehaviour
                 StopClipping();
                 ThrowObject();
             }
+            if (Input.GetKeyUp(KeyCode.Mouse1) || Input.GetKeyUp(KeyCode.R) && canDrop == true)
+            {
+                StopClipping();
+                DropObject();
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            StartCoroutine(RagdollTimer());
         }
     }
 
@@ -102,5 +113,12 @@ public class PickUpScript : MonoBehaviour
         {
             heldObj.transform.position = transform.position + new Vector3(0f, -0.5f, 0f);
         }
+    }
+
+    private IEnumerator RagdollTimer()
+    {
+        canPickUp = false;
+        yield return new WaitForSeconds(5);
+        canPickUp = true;
     }
 }
