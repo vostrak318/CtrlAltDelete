@@ -130,8 +130,10 @@ public class MainMovement : MonoBehaviour
         {
             Vector3 newPosition = rb.position + airMovement * Time.fixedDeltaTime; // Continue moving in the air
 
-            savedVelocity = newPosition * ragdollPower - rb.position * ragdollPower;
-            Debug.Log(savedVelocity);
+            savedVelocity = (newPosition - rb.position) / Time.deltaTime;
+            //savedVelocity = (newPosition * ragdollPower) - (rb.position * ragdollPower);
+            //rb.AddForce(new Vector3(newPosition.x, newPosition.y, newPosition.z), ForceMode.Impulse);
+            //Debug.Log(savedVelocity);
 
             rb.MovePosition(newPosition);
         }
@@ -198,9 +200,9 @@ public class MainMovement : MonoBehaviour
             {
                 if (ragdollBody != rb)
                 {
-                    
                     ragdollBody.isKinematic = false;
-                    ragdollBody.AddForce(savedVelocity, ForceMode.VelocityChange);
+                    ragdollBody.velocity = rb.velocity;
+                    ragdollBody.AddForce(savedVelocity, ForceMode.Impulse);
                 }
             }
 
