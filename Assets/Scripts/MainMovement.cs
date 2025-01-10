@@ -28,6 +28,7 @@ public class MainMovement : MonoBehaviour
     private Vector3 savedVelocity;
 
     public int ragdollPower = 50;
+    public float ragdollRespawnTime = 5f;
 
     /*[SerializeField]
     private Transform camFollowTransform*/
@@ -114,7 +115,7 @@ public class MainMovement : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.R))
         {
             SetRagdollState(true);
-            StartCoroutine(DisableRagdollAfterTime(5f));
+            StartCoroutine(DisableRagdollAfterTime(ragdollRespawnTime));
         }
     }
 
