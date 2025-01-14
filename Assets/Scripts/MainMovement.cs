@@ -30,9 +30,6 @@ public class MainMovement : MonoBehaviour
     public int ragdollPower = 50;
     public float ragdollRespawnTime = 5f;
 
-    /*[SerializeField]
-    private Transform camFollowTransform*/
-
     void Start()
     {
         rb = GetComponent<Rigidbody>();
