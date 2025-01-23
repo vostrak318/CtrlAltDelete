@@ -8,6 +8,7 @@ TagManager:
   - SpeedPotion
   - JumpPotion
   - TimeSlowPotion
+  - Trap
   layers:
   - Default
   - TransparentFX

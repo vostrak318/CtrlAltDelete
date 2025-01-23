@@ -21,11 +21,6 @@ public class GenderManager : MonoBehaviour
         male.SetActive(false);
         female.SetActive(false);
     }
-
-    void Update()
-    {
-
-    }
     public void SetMaleActive()
     {
         male.SetActive(true);

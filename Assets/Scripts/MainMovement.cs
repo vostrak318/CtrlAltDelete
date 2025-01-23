@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.InputSystem;
 
 public class MainMovement : MonoBehaviour
 {
@@ -21,7 +22,6 @@ public class MainMovement : MonoBehaviour
     Camera mainCamera;
     public bool hasSuperJump = false;
 
-    // Ragdoll variables
     private Rigidbody[] ragdollBodies;
     private Collider[] ragdollColliders;
     private Collider mainCollider;
@@ -29,6 +29,9 @@ public class MainMovement : MonoBehaviour
 
     public int ragdollPower = 50;
     public float ragdollRespawnTime = 5f;
+
+    public GameObject DeathUI;
+    private Vector3 startingPosition;
 
     void Start()
     {
@@ -44,6 +47,8 @@ public class MainMovement : MonoBehaviour
 
         // Deactivate ragdoll at the start
         SetRagdollState(false);
+
+        startingPosition = gameObject.transform.position;
     }
 
     void Update()
@@ -114,6 +119,13 @@ public class MainMovement : MonoBehaviour
             SetRagdollState(true);
             StartCoroutine(DisableRagdollAfterTime(ragdollRespawnTime));
         }
+
+
+
+        if (DeathUI.activeInHierarchy == true)
+        {
+            Cursor.lockState = CursorLockMode.None;
+        }
     }
 
     void FixedUpdate()
@@ -129,14 +141,9 @@ public class MainMovement : MonoBehaviour
             Vector3 newPosition = rb.position + airMovement * Time.fixedDeltaTime; // Continue moving in the air
 
             savedVelocity = (newPosition - rb.position) / Time.deltaTime;
-            //savedVelocity = (newPosition * ragdollPower) - (rb.position * ragdollPower);
-            //rb.AddForce(new Vector3(newPosition.x, newPosition.y, newPosition.z), ForceMode.Impulse);
-            //Debug.Log(savedVelocity);
-
             rb.MovePosition(newPosition);
         }
     }
-
 
     void OnCollisionStay(Collision collision)
     {
@@ -156,6 +163,54 @@ public class MainMovement : MonoBehaviour
         }
     }
 
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("SpeedPotion"))
+        {
+            Destroy(collision.gameObject);
+            StartCoroutine(SpeedPotionEffect());
+        }
+        else if (collision.gameObject.CompareTag("JumpPotion"))
+        {
+            Destroy(collision.gameObject);
+            StartCoroutine(JumpPotionEffect());
+        }
+        else if (collision.gameObject.CompareTag("TimeSlowPotion"))
+        {
+            Destroy(collision.gameObject);
+            StartCoroutine(TimeSlowPotionEffect());
+        }
+        else if (collision.gameObject.CompareTag("Trap") || HasChildWithTag(collision.gameObject, "Trap"))
+        {
+            SetRagdollState(true);
+            StartCoroutine(DisableRagdollAfterTime(ragdollRespawnTime));
+        }
+        
+    }
+    /*void OnTriggerEnter(Collider other)
+    {
+        foreach (Rigidbody ragdollBody in ragdollBodies)
+        {
+            if (other.gameObject.layer == LayerMask.NameToLayer("Water"))
+            {
+                SetRagdollState(true);
+                DeathUI.SetActive(true);
+            }
+        }
+    }*/
+
+    private bool HasChildWithTag(GameObject obj, string tag)
+    {
+        foreach (Transform child in obj.transform)
+        {
+            if (child.CompareTag(tag))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     IEnumerator JumpAnimationTimer()
     {
         if (!hasSuperJump)
@@ -167,10 +222,6 @@ public class MainMovement : MonoBehaviour
         else
         {
             animator.SetBool("SuperJump", true);
-            /*if (!isGrounded)
-            {
-                animator.Play("SuperJump", -1, 0.8f);
-            }*/
             yield return new WaitForSeconds(jumpAnimationTime);
             animator.SetBool("SuperJump", false);
         }
@@ -187,7 +238,7 @@ public class MainMovement : MonoBehaviour
     // Ragdoll functions
     // ========================================================================================
 
-    private void SetRagdollState(bool state)
+    public void SetRagdollState(bool state)
     {
         isRagdollActive = state;
 
@@ -221,30 +272,40 @@ public class MainMovement : MonoBehaviour
         }
         else
         {
-            // Deactivate ragdoll
-            foreach (Rigidbody ragdollBody in ragdollBodies)
+            if (ragdollBodies != null)
             {
-                if (ragdollBody != rb)
+                foreach (Rigidbody ragdollBody in ragdollBodies)
                 {
-                    ragdollBody.isKinematic = true;
+                    if (ragdollBody != rb)
+                    {
+                        ragdollBody.isKinematic = true;
+                    }
+                }
+            }
+            // Deactivate ragdoll
+
+            if (ragdollColliders != null)
+            {
+                foreach (Collider ragdollCollider in ragdollColliders)
+                {
+                    if (ragdollCollider != mainCollider)
+                    {
+                        ragdollCollider.enabled = false;
+                    }
                 }
             }
 
-            foreach (Collider ragdollCollider in ragdollColliders)
-            {
-                if (ragdollCollider != mainCollider)
-                {
-                    ragdollCollider.enabled = false;
-                }
-            }
 
             // Activate animator
             animator.enabled = true;
             animator.Play("IdleAnim");
 
             // Activate main Rigidbody and Collider
-            rb.isKinematic = false;
-            mainCollider.enabled = true;
+            if (rb != null)
+            {
+                rb.isKinematic = false;
+                mainCollider.enabled = true;
+            }
 
             // Cast a ray downwards to check for ground
             RaycastHit hit;
@@ -265,25 +326,6 @@ public class MainMovement : MonoBehaviour
     // ========================================================================================
     // Potion functions
     // ========================================================================================
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("SpeedPotion"))
-        {
-            Destroy(collision.gameObject);
-            StartCoroutine(SpeedPotionEffect());
-        }
-        else if (collision.gameObject.CompareTag("JumpPotion"))
-        {
-            Destroy(collision.gameObject);
-            StartCoroutine(JumpPotionEffect());
-        }
-        else if (collision.gameObject.CompareTag("TimeSlowPotion"))
-        {
-            Destroy(collision.gameObject);
-            StartCoroutine(TimeSlowPotionEffect());
-        }
-    }
 
     private IEnumerator SpeedPotionEffect()
     {
@@ -309,4 +351,21 @@ public class MainMovement : MonoBehaviour
         yield return new WaitForSecondsRealtime(5);
         Time.timeScale = 1f;
     }
+
+    //========================================================================================
+    //Respawn function
+    //========================================================================================
+
+    public void UpdateDeathUI()
+    {
+        DeathUI.SetActive(true);
+    }
+    public void Respawn()
+    {
+        gameObject.transform.position = startingPosition;
+        DeathUI.SetActive(false);
+        SetRagdollState(false);
+        Cursor.lockState = CursorLockMode.Locked;
+    }
 }
+
