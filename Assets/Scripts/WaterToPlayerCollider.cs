@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class WaterToPlayerCollider : MonoBehaviour
 {
+    public bool isUnderWater = false;
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.layer == LayerMask.NameToLayer("Player"))
@@ -11,6 +12,7 @@ public class WaterToPlayerCollider : MonoBehaviour
             MainMovement player = other.gameObject.GetComponentInParent<MainMovement>();
             player.UpdateDeathUI();
             player.SetRagdollState(true);
+            isUnderWater = true;
         }
     }
 }

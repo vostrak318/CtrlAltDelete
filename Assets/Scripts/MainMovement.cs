@@ -32,6 +32,9 @@ public class MainMovement : MonoBehaviour
 
     public GameObject DeathUI;
     private Vector3 startingPosition;
+    private Vector3 savedPosition;
+    private bool haveSpawn = false;
+    public Rigidbody bodypart;
 
     void Start()
     {
@@ -49,12 +52,14 @@ public class MainMovement : MonoBehaviour
         SetRagdollState(false);
 
         startingPosition = gameObject.transform.position;
+        savedPosition = startingPosition;
+
     }
 
     void Update()
     {
         // Check if the character is on the ground
-        isGrounded = Physics.CheckSphere(transform.position, 0.1f, LayerMask.GetMask("Ground"));
+        isGrounded = Physics.CheckSphere(transform.position, 0.5f, LayerMask.GetMask("Ground"));
 
         // Get keyboard input only if on the ground and ragdoll is not active
         float moveHorizontal = 0f;
@@ -117,10 +122,18 @@ public class MainMovement : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.R))
         {
             SetRagdollState(true);
-            StartCoroutine(DisableRagdollAfterTime(ragdollRespawnTime));
+            //StartCoroutine(DisableRagdollAfterTime(ragdollRespawnTime));
+            if (!haveSpawn)
+            {
+                savedPosition = startingPosition;
+            }
         }
 
-
+        if (isRagdollActive && bodypart.IsSleeping())
+        {
+            Debug.Log("Ragdoll is not moving");
+            SetRagdollState(false);
+        }
 
         if (DeathUI.activeInHierarchy == true)
         {
@@ -180,24 +193,19 @@ public class MainMovement : MonoBehaviour
             Destroy(collision.gameObject);
             StartCoroutine(TimeSlowPotionEffect());
         }
-        else if (collision.gameObject.CompareTag("Trap") || HasChildWithTag(collision.gameObject, "Trap"))
+        else if (/*collision.gameObject.CompareTag("Trap") || */ HasChildWithTag(collision.gameObject, "Trap"))
         {
             SetRagdollState(true);
-            StartCoroutine(DisableRagdollAfterTime(ragdollRespawnTime));
+            //StartCoroutine(DisableRagdollAfterTime(ragdollRespawnTime));
+        }
+        else if (collision.gameObject.CompareTag("Save"))
+        {
+            savedPosition = collision.gameObject.transform.position;
+            haveSpawn = true;
+            Destroy(collision.gameObject);
         }
         
     }
-    /*void OnTriggerEnter(Collider other)
-    {
-        foreach (Rigidbody ragdollBody in ragdollBodies)
-        {
-            if (other.gameObject.layer == LayerMask.NameToLayer("Water"))
-            {
-                SetRagdollState(true);
-                DeathUI.SetActive(true);
-            }
-        }
-    }*/
 
     private bool HasChildWithTag(GameObject obj, string tag)
     {
@@ -307,17 +315,23 @@ public class MainMovement : MonoBehaviour
                 mainCollider.enabled = true;
             }
 
-            // Cast a ray downwards to check for ground
-            RaycastHit hit;
-            if (Physics.Raycast(transform.position, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground")))
+            /*
+            // Check for ground
+            if (isGrounded)
             {
                 // Set position to the hit point
-                transform.position = hit.point;
-            }
+                transform.position = new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z);
+            }*/
+
+
+            // Cast a ray downwards to check for ground
+
+
+            transform.position = bodypart.transform.position;
         }
     }
 
-    private IEnumerator DisableRagdollAfterTime(float time)
+    public IEnumerator DisableRagdollAfterTime(float time)
     {
         yield return new WaitForSeconds(time);
         SetRagdollState(false);
@@ -338,7 +352,7 @@ public class MainMovement : MonoBehaviour
 
     private IEnumerator JumpPotionEffect()
     {
-        jumpForce *= 3;
+        jumpForce *= 2.5f;
         hasSuperJump = true;
         yield return new WaitForSeconds(5);
         jumpForce /= 3;
@@ -362,10 +376,13 @@ public class MainMovement : MonoBehaviour
     }
     public void Respawn()
     {
-        gameObject.transform.position = startingPosition;
+        Debug.Log(savedPosition);
+        Debug.Log(startingPosition);
+        gameObject.transform.position = new Vector3(savedPosition.x, savedPosition.y + 3f, savedPosition.z);
         DeathUI.SetActive(false);
+        haveSpawn = false;
+        savedPosition = startingPosition;
         SetRagdollState(false);
         Cursor.lockState = CursorLockMode.Locked;
     }
 }
-
