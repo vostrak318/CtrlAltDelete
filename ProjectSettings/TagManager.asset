@@ -9,6 +9,8 @@ TagManager:
   - JumpPotion
   - TimeSlowPotion
   - Trap
+  - Save
+  - Platform
   layers:
   - Default
   - TransparentFX
