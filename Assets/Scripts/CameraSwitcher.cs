@@ -15,13 +15,13 @@ public class CameraSwitcher : MonoBehaviour
     private bool isAimCameraActive = false;
     private InputAction rightClickAction;
 
-
     private void Start()
     {
         // Disable the aim camera at the start
         aimcam.Priority = 0;
         crossHair.enabled = false;
     }
+
     private void OnEnable()
     {
         // Create and enable the right click action
@@ -40,7 +40,7 @@ public class CameraSwitcher : MonoBehaviour
 
     private void OnRightMouseClick(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if (context.performed && !IsDeathUIActive())
         {
             isAimCameraActive = !isAimCameraActive;
             if (isAimCameraActive)
@@ -73,4 +73,11 @@ public class CameraSwitcher : MonoBehaviour
             aimcam.Priority = 0;
         }
     }
+
+    private bool IsDeathUIActive()
+    {
+        GameObject deathUI = GameObject.Find("DeathUI");
+        return deathUI != null && deathUI.activeInHierarchy;
+    }
 }
+

@@ -15,7 +15,15 @@ public class FallingSaveScript : MonoBehaviour
 
             Instantiate(spawnedObject, spawnPosition, Quaternion.identity);
 
+            // Update the spawn position in MainMovement script
+            MainMovement playerMovement = other.GetComponent<MainMovement>();
+            if (playerMovement != null)
+            {
+                playerMovement.UpdateSpawnPosition(spawnPosition);
+            }
+
             Destroy(gameObject);
         }
     }
 }
+

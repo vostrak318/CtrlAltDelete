@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.InputSystem;
 
 public class MainMovement : MonoBehaviour
@@ -35,6 +36,9 @@ public class MainMovement : MonoBehaviour
     private Vector3 savedPosition;
     private bool haveSpawn = false;
     public Rigidbody bodypart;
+    public GameObject spawnPoint;
+
+    private List<Vector3> savePoints = new List<Vector3>();
 
     void Start()
     {
@@ -51,9 +55,9 @@ public class MainMovement : MonoBehaviour
         // Deactivate ragdoll at the start
         SetRagdollState(false);
 
-        startingPosition = gameObject.transform.position;
+        startingPosition = spawnPoint.transform.position;
         savedPosition = startingPosition;
-
+        Debug.Log("Initial spawn point set to: " + startingPosition);
     }
 
     void Update()
@@ -129,7 +133,7 @@ public class MainMovement : MonoBehaviour
             }
         }
 
-        if (isRagdollActive && bodypart.IsSleeping())
+        if (isRagdollActive && bodypart.IsSleeping() && !DeathUI.activeInHierarchy)
         {
             Debug.Log("Ragdoll is not moving");
             SetRagdollState(false);
@@ -193,30 +197,19 @@ public class MainMovement : MonoBehaviour
             Destroy(collision.gameObject);
             StartCoroutine(TimeSlowPotionEffect());
         }
-        else if (/*collision.gameObject.CompareTag("Trap") || */ HasChildWithTag(collision.gameObject, "Trap"))
+        else if (collision.gameObject.CompareTag("Trap"))
         {
             SetRagdollState(true);
-            //StartCoroutine(DisableRagdollAfterTime(ragdollRespawnTime));
+            Debug.Log("Collided with: " + collision.gameObject.name);
         }
         else if (collision.gameObject.CompareTag("Save"))
         {
             savedPosition = collision.gameObject.transform.position;
+            savePoints.Add(savedPosition);
             haveSpawn = true;
             Destroy(collision.gameObject);
+            Debug.Log("Save point collected. New saved position: " + savedPosition);
         }
-        
-    }
-
-    private bool HasChildWithTag(GameObject obj, string tag)
-    {
-        foreach (Transform child in obj.transform)
-        {
-            if (child.CompareTag(tag))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 
     IEnumerator JumpAnimationTimer()
@@ -369,20 +362,43 @@ public class MainMovement : MonoBehaviour
     //========================================================================================
     //Respawn function
     //========================================================================================
-
+    public void UpdateSpawnPosition(Vector3 newSpawnPosition)
+    {
+        spawnPoint.transform.position = newSpawnPosition;
+        Debug.Log("Spawn point updated to: " + newSpawnPosition);
+    }
     public void UpdateDeathUI()
     {
         DeathUI.SetActive(true);
     }
     public void Respawn()
     {
-        Debug.Log(savedPosition);
-        Debug.Log(startingPosition);
-        gameObject.transform.position = new Vector3(savedPosition.x, savedPosition.y + 3f, savedPosition.z);
+        if (savePoints.Count > 0)
+        {
+            // Vezmi poslední save point
+            Vector3 lastSavePoint = savePoints[savePoints.Count - 1];
+            gameObject.transform.position = new Vector3(lastSavePoint.x, lastSavePoint.y + 3f, lastSavePoint.z);
+
+            // Odeber tento save point ze seznamu
+            savePoints.RemoveAt(savePoints.Count - 1);
+
+            Debug.Log("Respawning at last save point: " + lastSavePoint);
+        }
+        else
+        {
+            // Pokud nejsou žádné save pointy, vrátíme se na základní spawn point
+            gameObject.transform.position = new Vector3(spawnPoint.transform.position.x, spawnPoint.transform.position.y + 3f, spawnPoint.transform.position.z);
+            Debug.Log("Respawning at initial spawn point: " + spawnPoint.transform.position);
+        }
+
+        // Reset UI a ragdoll
         DeathUI.SetActive(false);
         haveSpawn = false;
         savedPosition = startingPosition;
         SetRagdollState(false);
         Cursor.lockState = CursorLockMode.Locked;
+
+        // Pøehrát animaci IdleAnim
+        animator.Play("IdleAnim");
     }
 }
