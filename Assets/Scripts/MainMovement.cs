@@ -40,6 +40,9 @@ public class MainMovement : MonoBehaviour
 
     private List<Vector3> savePoints = new List<Vector3>();
 
+
+    
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -109,6 +112,16 @@ public class MainMovement : MonoBehaviour
                 rb.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
                 StartCoroutine(JumpAnimationTimer());
                 StartCoroutine(JumpCooldown());
+                if (GenderManager.instance.isFemaleActive == true)
+                {
+                    Debug.Log("Playing female sound");
+                    SoundFXManager.instance.PlaySoundFXClip(SoundFXManager.instance.femaleJumpClip, transform, 1f);
+                }
+                else if (GenderManager.instance.isMaleActive == true)
+                {
+                    Debug.Log("Playing male sound");
+                    SoundFXManager.instance.PlaySoundFXClip(SoundFXManager.instance.maleJumpClip, transform, 1f);
+                }
             }
 
             // Rotate character in the direction of movement

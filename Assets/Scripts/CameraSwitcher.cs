@@ -47,11 +47,13 @@ public class CameraSwitcher : MonoBehaviour
             {
                 SwitchToAimCamera();
                 crossHair.enabled = true;
+                SoundFXManager.instance.PlaySoundFXClip(SoundFXManager.instance.switchToAimCamClip, transform, 1f);
             }
             else
             {
                 SwitchToDefaultCamera();
                 crossHair.enabled = false;
+                SoundFXManager.instance.PlaySoundFXClip(SoundFXManager.instance.switchToDefaultCamClip, transform, 1f);
             }
         }
     }

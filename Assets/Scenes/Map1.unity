@@ -549,6 +549,58 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b9dbaaddc58e958409e597b1063ede0b, type: 3}
+--- !u!1 &117140325
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 117140327}
+  - component: {fileID: 117140326}
+  m_Layer: 0
+  m_Name: SoundFXManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &117140326
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 117140325}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09915a7f21ad42444a6e6bbef6805e85, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  soundFXObject: {fileID: 7492886306634483448, guid: a00ac20cf1818004e97a1a46ad547c69,
+    type: 3}
+  femaleJumpClip: {fileID: 8300000, guid: ae6974d187155f44b98706850a827edf, type: 3}
+  maleJumpClip: {fileID: 0}
+  walkClip: {fileID: 0}
+  runClip: {fileID: 0}
+  switchCamClip: {fileID: 8300000, guid: 61977d1a407330643a9ea17403f2a893, type: 3}
+  backgroundClip: {fileID: 0}
+--- !u!4 &117140327
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 117140325}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &189401249
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5074,6 +5126,8 @@ MonoBehaviour:
   aimcam: {fileID: 2143517470}
   camFollowMale: {fileID: 1251468630}
   camFollowFemale: {fileID: 347866941}
+  isMaleActive: 0
+  isFemaleActive: 0
 --- !u!4 &1322743897
 Transform:
   m_ObjectHideFlags: 0
@@ -9519,6 +9573,7 @@ SceneRoots:
   - {fileID: 1961443265}
   - {fileID: 1322743897}
   - {fileID: 732551803}
+  - {fileID: 117140327}
   - {fileID: 4350409455462705992}
   - {fileID: 2000220872}
   - {fileID: 9098116388536514192}

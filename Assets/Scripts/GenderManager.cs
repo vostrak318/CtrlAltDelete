@@ -7,6 +7,8 @@ using Cinemachine;
 
 public class GenderManager : MonoBehaviour
 {
+    public static GenderManager instance; 
+
     public GameObject chooseGenderUI;
 
     public GameObject male;
@@ -15,14 +17,29 @@ public class GenderManager : MonoBehaviour
     public CinemachineVirtualCamera aimcam;
     public GameObject camFollowMale;
     public GameObject camFollowFemale;
+
+    public bool isMaleActive = false;
+    public bool isFemaleActive = false;
+
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+    }
+
     void Start()
     {
         chooseGenderUI.SetActive(true);
         male.SetActive(false);
         female.SetActive(false);
+        isMaleActive = false;
+        isFemaleActive = false;
     }
     public void SetMaleActive()
     {
+        isMaleActive = true;
         male.SetActive(true);
         female.SetActive(false);
         chooseGenderUI.SetActive(false);
@@ -33,6 +50,7 @@ public class GenderManager : MonoBehaviour
     }
     public void SetFemaleActive()
     {
+        isFemaleActive = true;
         female.SetActive(true);
         male.SetActive(false);
         chooseGenderUI.SetActive(false);
