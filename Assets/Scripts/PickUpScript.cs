@@ -90,6 +90,7 @@ public class PickUpScript : MonoBehaviour
     {
         if (pickUpObj.GetComponent<Rigidbody>())
         {
+            SoundFXManager.instance.PlaySoundFXClip(SoundFXManager.instance.grabClip, transform, 1f);
             heldObj = pickUpObj;
             heldObjRb = pickUpObj.GetComponent<Rigidbody>();
             heldObjRb.isKinematic = true;
@@ -101,6 +102,7 @@ public class PickUpScript : MonoBehaviour
 
     void DropObject()
     {
+        SoundFXManager.instance.PlaySoundFXClip(SoundFXManager.instance.throwClip, transform, 1f);
         Physics.IgnoreCollision(heldObj.GetComponent<Collider>(), player.GetComponent<Collider>(), false);
         heldObj.layer = 0;
         heldObjRb.isKinematic = false;
@@ -115,6 +117,7 @@ public class PickUpScript : MonoBehaviour
 
     void ThrowObject()
     {
+        SoundFXManager.instance.PlaySoundFXClip(SoundFXManager.instance.throwClip, transform, 1f);
         Physics.IgnoreCollision(heldObj.GetComponent<Collider>(), player.GetComponent<Collider>(), false);
         heldObj.layer = 0;
         heldObjRb.isKinematic = false;

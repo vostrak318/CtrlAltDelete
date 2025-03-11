@@ -40,8 +40,10 @@ public class MainMovement : MonoBehaviour
 
     private List<Vector3> savePoints = new List<Vector3>();
 
+    private AudioSource movementAudioSource; // Nová promìnná pro pøehrávání zvuku pohybu
 
-    
+    private bool hasPlayedDeathSound = false;
+
 
     void Start()
     {
@@ -50,21 +52,24 @@ public class MainMovement : MonoBehaviour
         Cursor.visible = false;
         mainCamera = Camera.main;
 
-        // Initialize ragdoll components
         ragdollBodies = GetComponentsInChildren<Rigidbody>();
         ragdollColliders = GetComponentsInChildren<Collider>();
         mainCollider = GetComponent<Collider>();
 
-        // Deactivate ragdoll at the start
         SetRagdollState(false);
 
         startingPosition = spawnPoint.transform.position;
         savedPosition = startingPosition;
         Debug.Log("Initial spawn point set to: " + startingPosition);
+
+        movementAudioSource = gameObject.AddComponent<AudioSource>();
+        movementAudioSource.loop = true;
     }
 
     void Update()
     {
+        //Play bg songs
+        SoundFXManager.instance.PlayRandomSoundFXClip(transform, 0.05f);
         // Check if the character is on the ground
         isGrounded = Physics.CheckSphere(transform.position, 0.5f, LayerMask.GetMask("Ground"));
 
@@ -90,6 +95,7 @@ public class MainMovement : MonoBehaviour
             movement = forward * moveVertical + right * moveHorizontal;
 
             // Set animations
+            // Walk
             bool isMoving = movement.sqrMagnitude > 0;
             animator.SetBool("Move", isMoving);
 
@@ -100,10 +106,22 @@ public class MainMovement : MonoBehaviour
             if (isSprinting)
             {
                 movement *= sprintSpeed;
+                if (!SoundFXManager.instance.IsPlaying(SoundFXManager.instance.runClip) && isGrounded)
+                {
+                    SoundFXManager.instance.PlayLoopingSoundFX(SoundFXManager.instance.runClip, transform, 1.5f);
+                }
+            }
+            else if (isMoving) // Pokud se pohybuje, ale nesprintuje
+            {
+                movement *= walkSpeed;
+                if (!SoundFXManager.instance.IsPlaying(SoundFXManager.instance.walkClip) && isGrounded)
+                {
+                    SoundFXManager.instance.PlayLoopingSoundFX(SoundFXManager.instance.walkClip, transform, 1.5f);
+                }
             }
             else
             {
-                movement *= walkSpeed;
+                SoundFXManager.instance.StopLoopingSoundFX();
             }
 
             // Jump
@@ -134,6 +152,11 @@ public class MainMovement : MonoBehaviour
             // Save movement direction for use in the air
             airMovement = movement;
         }
+        else
+        {
+            // Pokud není na zemi, zastavte pøehrávání zvuku chùze
+            SoundFXManager.instance.StopLoopingSoundFX();
+        }
 
         // Activate ragdoll on pressing R
         if (Input.GetKeyDown(KeyCode.R))
@@ -152,11 +175,15 @@ public class MainMovement : MonoBehaviour
             SetRagdollState(false);
         }
 
-        if (DeathUI.activeInHierarchy == true)
+        if (DeathUI.activeInHierarchy == true && !hasPlayedDeathSound)
         {
             Cursor.lockState = CursorLockMode.None;
+            PlayDeathSound();
+            hasPlayedDeathSound = true;
         }
     }
+
+
 
     void FixedUpdate()
     {
@@ -263,6 +290,7 @@ public class MainMovement : MonoBehaviour
             {
                 if (ragdollBody != rb)
                 {
+                    SoundFXManager.instance.PlaySoundFXClip(SoundFXManager.instance.ragdollClip, transform, 0.1f);
                     ragdollBody.isKinematic = false;
                     ragdollBody.velocity = rb.velocity;
                     ragdollBody.AddForce(savedVelocity, ForceMode.Impulse);
@@ -383,6 +411,12 @@ public class MainMovement : MonoBehaviour
     public void UpdateDeathUI()
     {
         DeathUI.SetActive(true);
+        Cursor.lockState = CursorLockMode.None;
+        if (!hasPlayedDeathSound)
+        {
+            PlayDeathSound();
+            hasPlayedDeathSound = true;
+        }
     }
     public void Respawn()
     {
@@ -413,5 +447,20 @@ public class MainMovement : MonoBehaviour
 
         // Pøehrát animaci IdleAnim
         animator.Play("IdleAnim");
+
+        // Reset death sound flag
+        hasPlayedDeathSound = false;
+    }
+
+    private void PlayDeathSound()
+    {
+        if (GenderManager.instance.isFemaleActive == true)
+        {
+            SoundFXManager.instance.PlaySoundFXClip(SoundFXManager.instance.femaleDeathClip, transform, 1f);
+        }
+        else if (GenderManager.instance.isMaleActive == true)
+        {
+            SoundFXManager.instance.PlaySoundFXClip(SoundFXManager.instance.maleDeathClip, transform, 1f);
+        }
     }
 }

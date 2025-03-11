@@ -580,12 +580,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   soundFXObject: {fileID: 7492886306634483448, guid: a00ac20cf1818004e97a1a46ad547c69,
     type: 3}
+  bgSongs:
+  - {fileID: 8300000, guid: 95c8eb5ec04136141b27239d04e2fa31, type: 3}
+  - {fileID: 8300000, guid: e32f62cc83023e749800a69e4458987a, type: 3}
+  - {fileID: 8300000, guid: 390795383c1c4364d91a6e654254cba4, type: 3}
+  - {fileID: 8300000, guid: 4d21fac9c34b5ff4c85a9deccd3d78bb, type: 3}
+  - {fileID: 8300000, guid: d259f5ed4e2748f4998b26b2ace19cf4, type: 3}
+  - {fileID: 8300000, guid: 5838df04676ddf04a9252661d29f6b81, type: 3}
   femaleJumpClip: {fileID: 8300000, guid: ae6974d187155f44b98706850a827edf, type: 3}
-  maleJumpClip: {fileID: 0}
-  walkClip: {fileID: 0}
-  runClip: {fileID: 0}
-  switchCamClip: {fileID: 8300000, guid: 61977d1a407330643a9ea17403f2a893, type: 3}
-  backgroundClip: {fileID: 0}
+  maleJumpClip: {fileID: 8300000, guid: 6111906110a82c44ba217feb427da2e9, type: 3}
+  walkClip: {fileID: 8300000, guid: 8d539d2536bbb3648af507513e8dcd78, type: 3}
+  runClip: {fileID: 8300000, guid: 39e2892003dac68468d2ab073a35b42a, type: 3}
+  switchToAimCamClip: {fileID: 8300000, guid: 61977d1a407330643a9ea17403f2a893, type: 3}
+  switchToDefaultCamClip: {fileID: 8300000, guid: 6dba911767c175b4b97ca62706a0f84d,
+    type: 3}
+  grabClip: {fileID: 8300000, guid: 372652322ea9a3e4f985c5f07733ab49, type: 3}
+  throwClip: {fileID: 8300000, guid: 21e2650eba0a0864d82d82e1576f6a26, type: 3}
+  ragdollClip: {fileID: 8300000, guid: 938eb6edc54d0cd4986e4da5f7f661f3, type: 3}
+  femaleDeathClip: {fileID: 8300000, guid: c676a888e9dc3334e95649326c3f18b3, type: 3}
+  maleDeathClip: {fileID: 8300000, guid: 8663aac5ed0e95a41b0e8a71ec85c496, type: 3}
 --- !u!4 &117140327
 Transform:
   m_ObjectHideFlags: 0
@@ -8046,6 +8059,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pauseMenu: {fileID: 689007250}
+  deathUI: {fileID: 2007544421}
 --- !u!4 &1961443265
 Transform:
   m_ObjectHideFlags: 0
