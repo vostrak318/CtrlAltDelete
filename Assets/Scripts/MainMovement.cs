@@ -8,7 +8,8 @@ public class MainMovement : MonoBehaviour
     public float walkSpeed = 1.5f;
     public float sprintSpeed = 3f;
     public float jumpForce = 6f;
-    public Animator animator;
+    public Animator maleAnimator;
+    public Animator femaleAnimator;
 
     private Rigidbody rb;
     private Vector3 movement;
@@ -44,7 +45,6 @@ public class MainMovement : MonoBehaviour
 
     private bool hasPlayedDeathSound = false;
 
-
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -68,8 +68,6 @@ public class MainMovement : MonoBehaviour
 
     void Update()
     {
-        //Play bg songs
-        SoundFXManager.instance.PlayRandomSoundFXClip(transform, 0.05f);
         // Check if the character is on the ground
         isGrounded = Physics.CheckSphere(transform.position, 0.5f, LayerMask.GetMask("Ground"));
 
@@ -97,11 +95,11 @@ public class MainMovement : MonoBehaviour
             // Set animations
             // Walk
             bool isMoving = movement.sqrMagnitude > 0;
-            animator.SetBool("Move", isMoving);
+            GetActiveAnimator().SetBool("Move", isMoving);
 
             // Sprint
             bool isSprinting = Input.GetKey(KeyCode.LeftShift);
-            animator.SetBool("Sprint", isSprinting);
+            GetActiveAnimator().SetBool("Sprint", isSprinting);
 
             if (isSprinting)
             {
@@ -183,8 +181,6 @@ public class MainMovement : MonoBehaviour
         }
     }
 
-
-
     void FixedUpdate()
     {
         // Move character
@@ -256,15 +252,15 @@ public class MainMovement : MonoBehaviour
     {
         if (!hasSuperJump)
         {
-            animator.SetBool("Jump", true);
+            GetActiveAnimator().SetBool("Jump", true);
             yield return new WaitForSeconds(jumpAnimationTime);
-            animator.SetBool("Jump", false);
+            GetActiveAnimator().SetBool("Jump", false);
         }
         else
         {
-            animator.SetBool("SuperJump", true);
+            GetActiveAnimator().SetBool("SuperJump", true);
             yield return new WaitForSeconds(jumpAnimationTime);
-            animator.SetBool("SuperJump", false);
+            GetActiveAnimator().SetBool("SuperJump", false);
         }
     }
 
@@ -306,7 +302,7 @@ public class MainMovement : MonoBehaviour
             }
 
             // Deactivate animator
-            animator.enabled = false;
+            GetActiveAnimator().enabled = false;
 
             // Deactivate main Rigidbody and Collider
             rb.isKinematic = true;
@@ -337,10 +333,8 @@ public class MainMovement : MonoBehaviour
                 }
             }
 
-
             // Activate animator
-            animator.enabled = true;
-            animator.Play("IdleAnim");
+            GetActiveAnimator().enabled = true;
 
             // Activate main Rigidbody and Collider
             if (rb != null)
@@ -357,9 +351,7 @@ public class MainMovement : MonoBehaviour
                 transform.position = new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z);
             }*/
 
-
             // Cast a ray downwards to check for ground
-
 
             transform.position = bodypart.transform.position;
         }
@@ -369,6 +361,19 @@ public class MainMovement : MonoBehaviour
     {
         yield return new WaitForSeconds(time);
         SetRagdollState(false);
+    }
+
+    private Animator GetActiveAnimator()
+    {
+        if (GenderManager.instance.isFemaleActive)
+        {
+            return femaleAnimator;
+        }
+        else if (GenderManager.instance.isMaleActive)
+        {
+            return maleAnimator;
+        }
+        return null;
     }
 
     // ========================================================================================
@@ -420,11 +425,13 @@ public class MainMovement : MonoBehaviour
     }
     public void Respawn()
     {
+        Vector3 respawnPosition;
+
         if (savePoints.Count > 0)
         {
             // Vezmi poslední save point
             Vector3 lastSavePoint = savePoints[savePoints.Count - 1];
-            gameObject.transform.position = new Vector3(lastSavePoint.x, lastSavePoint.y + 3f, lastSavePoint.z);
+            respawnPosition = new Vector3(lastSavePoint.x, lastSavePoint.y + 3f, lastSavePoint.z);
 
             // Odeber tento save point ze seznamu
             savePoints.RemoveAt(savePoints.Count - 1);
@@ -434,7 +441,7 @@ public class MainMovement : MonoBehaviour
         else
         {
             // Pokud nejsou žádné save pointy, vrátíme se na základní spawn point
-            gameObject.transform.position = new Vector3(spawnPoint.transform.position.x, spawnPoint.transform.position.y + 3f, spawnPoint.transform.position.z);
+            respawnPosition = new Vector3(spawnPoint.transform.position.x, spawnPoint.transform.position.y + 3f, spawnPoint.transform.position.z);
             Debug.Log("Respawning at initial spawn point: " + spawnPoint.transform.position);
         }
 
@@ -445,8 +452,18 @@ public class MainMovement : MonoBehaviour
         SetRagdollState(false);
         Cursor.lockState = CursorLockMode.Locked;
 
-        // Pøehrát animaci IdleAnim
-        animator.Play("IdleAnim");
+        // Nastav pozici postavy na respawn pozici
+        transform.position = respawnPosition;
+
+        // Pøehrát animaci IdleAnim nebo IdleWoman podle pohlaví
+        if (GenderManager.instance.isFemaleActive)
+        {
+            femaleAnimator.Play("IdleWoman");
+        }
+        else if (GenderManager.instance.isMaleActive)
+        {
+            maleAnimator.Play("IdleAnim");
+        }
 
         // Reset death sound flag
         hasPlayedDeathSound = false;
@@ -464,3 +481,4 @@ public class MainMovement : MonoBehaviour
         }
     }
 }
+

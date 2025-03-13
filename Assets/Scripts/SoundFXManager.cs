@@ -28,7 +28,6 @@ public class SoundFXManager : MonoBehaviour
 
     private AudioSource loopingAudioSource;
 
-
     private void Awake()
     {
         if (instance == null)
@@ -47,18 +46,17 @@ public class SoundFXManager : MonoBehaviour
         Destroy(audioSource.gameObject, clipLength);
     }
 
-    public void PlayRandomSoundFXClip(Transform spawnTransform, float volume)
+    public void PlayRandomSoundFXClip(AudioClip[] audioClips, GameObject player, float volume)
     {
-        if (currentAudioSource == null || !currentAudioSource.isPlaying)
+        int rnd = Random.Range(0, audioClips.Length);
+        AudioSource audioSource = player.GetComponent<AudioSource>();
+        if (audioSource == null)
         {
-            int rnd = Random.Range(0, bgSongs.Length);
-            currentAudioSource = Instantiate(soundFXObject, spawnTransform.position, Quaternion.identity);
-            currentAudioSource.clip = bgSongs[rnd];
-            currentAudioSource.volume = volume;
-            currentAudioSource.Play();
-            float clipLength = currentAudioSource.clip.length;
-            Destroy(currentAudioSource.gameObject, clipLength);
+            audioSource = player.AddComponent<AudioSource>();
         }
+        audioSource.clip = audioClips[rnd];
+        audioSource.volume = volume;
+        audioSource.Play();
     }
 
     public void PlayLoopingSoundFX(AudioClip audioClip, Transform spawnTransform, float volume)

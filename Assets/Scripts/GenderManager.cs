@@ -7,7 +7,7 @@ using Cinemachine;
 
 public class GenderManager : MonoBehaviour
 {
-    public static GenderManager instance; 
+    public static GenderManager instance;
 
     public GameObject chooseGenderUI;
 
@@ -37,9 +37,11 @@ public class GenderManager : MonoBehaviour
         isMaleActive = false;
         isFemaleActive = false;
     }
+
     public void SetMaleActive()
     {
         isMaleActive = true;
+        isFemaleActive = false;
         male.SetActive(true);
         female.SetActive(false);
         chooseGenderUI.SetActive(false);
@@ -48,9 +50,11 @@ public class GenderManager : MonoBehaviour
         aimcam.Follow = camFollowMale.transform;
         aimcam.LookAt = camFollowMale.transform;
     }
+
     public void SetFemaleActive()
     {
         isFemaleActive = true;
+        isMaleActive = false;
         female.SetActive(true);
         male.SetActive(false);
         chooseGenderUI.SetActive(false);
