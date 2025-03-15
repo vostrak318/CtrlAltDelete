@@ -45,6 +45,8 @@ public class MainMovement : MonoBehaviour
 
     private bool hasPlayedDeathSound = false;
 
+    private bool isRespawned = false;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -160,7 +162,6 @@ public class MainMovement : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.R))
         {
             SetRagdollState(true);
-            //StartCoroutine(DisableRagdollAfterTime(ragdollRespawnTime));
             if (!haveSpawn)
             {
                 savedPosition = startingPosition;
@@ -176,8 +177,13 @@ public class MainMovement : MonoBehaviour
         if (DeathUI.activeInHierarchy == true && !hasPlayedDeathSound)
         {
             Cursor.lockState = CursorLockMode.None;
-            PlayDeathSound();
             hasPlayedDeathSound = true;
+        }
+
+        if (isRespawned)
+        {
+            AfterRespawn();
+            isRespawned = false;
         }
     }
 
@@ -343,16 +349,6 @@ public class MainMovement : MonoBehaviour
                 mainCollider.enabled = true;
             }
 
-            /*
-            // Check for ground
-            if (isGrounded)
-            {
-                // Set position to the hit point
-                transform.position = new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z);
-            }*/
-
-            // Cast a ray downwards to check for ground
-
             transform.position = bodypart.transform.position;
         }
     }
@@ -445,15 +441,23 @@ public class MainMovement : MonoBehaviour
             Debug.Log("Respawning at initial spawn point: " + spawnPoint.transform.position);
         }
 
-        // Reset UI a ragdoll
+        // Nastav pozici postavy na respawn pozici
+        transform.position = respawnPosition;
+
+        // Reset death sound flag
+        hasPlayedDeathSound = false;
+
+        isRespawned = true;
+    }
+
+    private void AfterRespawn()
+    {
         DeathUI.SetActive(false);
         haveSpawn = false;
         savedPosition = startingPosition;
         SetRagdollState(false);
         Cursor.lockState = CursorLockMode.Locked;
-
-        // Nastav pozici postavy na respawn pozici
-        transform.position = respawnPosition;
+        rb.velocity = Vector3.zero;
 
         // Pøehrát animaci IdleAnim nebo IdleWoman podle pohlaví
         if (GenderManager.instance.isFemaleActive)
@@ -465,8 +469,18 @@ public class MainMovement : MonoBehaviour
             maleAnimator.Play("IdleAnim");
         }
 
-        // Reset death sound flag
-        hasPlayedDeathSound = false;
+        if (ragdollBodies != null)
+        {
+            foreach (Rigidbody ragdollBody in ragdollBodies)
+            {
+                if (ragdollBody != rb)
+                {
+                    ragdollBody.isKinematic = false;
+                    ragdollBody.velocity = Vector3.zero;
+                    ragdollBody.position = savedPosition;
+                }
+            }
+        }
     }
 
     private void PlayDeathSound()
@@ -481,4 +495,3 @@ public class MainMovement : MonoBehaviour
         }
     }
 }
-

@@ -1394,13 +1394,17 @@ MonoBehaviour:
   walkSpeed: 1.5
   sprintSpeed: 3
   jumpForce: 5
-  animator: {fileID: 95072990338906668}
+  maleAnimator: {fileID: 0}
+  femaleAnimator: {fileID: 0}
   turnSpeed: 8
   jumpCooldown: 1.27
   jumpAnimationTime: 0.5
   hasSuperJump: 0
   ragdollPower: 50
   ragdollRespawnTime: 5
+  DeathUI: {fileID: 0}
+  bodypart: {fileID: 0}
+  spawnPoint: {fileID: 0}
 --- !u!54 &5132754925129093092
 Rigidbody:
   m_ObjectHideFlags: 0

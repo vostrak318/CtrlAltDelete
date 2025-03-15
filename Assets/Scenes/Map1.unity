@@ -1479,6 +1479,18 @@ Animator:
     type: 3}
   m_PrefabInstance: {fileID: 1293505}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1293512 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8210461899341511083, guid: da3eb27b09f49164f92acc665ec93174,
+    type: 3}
+  m_PrefabInstance: {fileID: 1293505}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1293506}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab885ac0c30ad8f478173ab12a72660e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5133965
 GameObject:
   m_ObjectHideFlags: 0
@@ -2343,7 +2355,7 @@ Transform:
   m_GameObject: {fileID: 199960891}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 14.68, z: 31.06}
+  m_LocalPosition: {x: 0, y: 9.77, z: 31.06}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3828,6 +3840,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1293512}
+        m_TargetAssemblyTypeName: MainMovement, Assembly-CSharp
+        m_MethodName: Respawn
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &434953267
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4981,8 +5005,8 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -11911,8 +11935,8 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2007544421}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 31.06}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:

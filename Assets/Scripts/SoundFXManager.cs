@@ -46,18 +46,34 @@ public class SoundFXManager : MonoBehaviour
         Destroy(audioSource.gameObject, clipLength);
     }
 
+
+    //----------bg music------------
     public void PlayRandomSoundFXClip(AudioClip[] audioClips, GameObject player, float volume)
     {
-        int rnd = Random.Range(0, audioClips.Length);
         AudioSource audioSource = player.GetComponent<AudioSource>();
         if (audioSource == null)
         {
             audioSource = player.AddComponent<AudioSource>();
         }
-        audioSource.clip = audioClips[rnd];
+
         audioSource.volume = volume;
-        audioSource.Play();
+        PlayNextRandomClip(audioClips, audioSource);
     }
+    private void PlayNextRandomClip(AudioClip[] audioClips, AudioSource audioSource)
+    {
+        int rnd = Random.Range(0, audioClips.Length);
+        audioSource.clip = audioClips[rnd];
+        audioSource.Play();
+        audioSource.loop = false;
+        StartCoroutine(WaitForClipToEnd(audioClips, audioSource));
+    }
+    private IEnumerator WaitForClipToEnd(AudioClip[] audioClips, AudioSource audioSource)
+    {
+        yield return new WaitForSeconds(audioSource.clip.length);
+        PlayNextRandomClip(audioClips, audioSource);
+    }
+
+
 
     public void PlayLoopingSoundFX(AudioClip audioClip, Transform spawnTransform, float volume)
     {
