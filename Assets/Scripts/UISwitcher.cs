@@ -8,6 +8,7 @@ public class UISwitcher : MonoBehaviour
     public GameObject pauseMenu;
     public GameObject deathUI;
     public GameObject settings;
+    public GameObject genderUI;
 
     private void Start()
     {
@@ -16,7 +17,7 @@ public class UISwitcher : MonoBehaviour
     }
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape) && pauseMenu.activeInHierarchy == false && deathUI.activeInHierarchy == false && settings.activeInHierarchy == false)
+        if (Input.GetKeyDown(KeyCode.Escape) && pauseMenu.activeInHierarchy == false && deathUI.activeInHierarchy == false && settings.activeInHierarchy == false && genderUI.activeInHierarchy == false)
         {
             pauseMenu.SetActive(true);
             Time.timeScale = 0;

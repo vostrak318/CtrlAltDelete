@@ -40,7 +40,7 @@ public class CameraSwitcher : MonoBehaviour
 
     private void OnRightMouseClick(InputAction.CallbackContext context)
     {
-        if (context.performed && !IsDeathUIActive())
+        if (context.performed && !IsAnyUIActive())
         {
             isAimCameraActive = !isAimCameraActive;
             if (isAimCameraActive)
@@ -76,10 +76,12 @@ public class CameraSwitcher : MonoBehaviour
         }
     }
 
-    private bool IsDeathUIActive()
+    private bool IsAnyUIActive()
     {
         GameObject deathUI = GameObject.Find("DeathUI");
-        return deathUI != null && deathUI.activeInHierarchy;
+        GameObject pauseMenu = GameObject.Find("PauseMenu");
+        GameObject settings = GameObject.Find("SettingsMenu");
+        return deathUI != null && deathUI.activeInHierarchy && pauseMenu != null && pauseMenu.activeInHierarchy && settings != null && settings.activeInHierarchy;
     }
 }
 

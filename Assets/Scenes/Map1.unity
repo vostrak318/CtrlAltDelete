@@ -11734,6 +11734,7 @@ MonoBehaviour:
   pauseMenu: {fileID: 689007250}
   deathUI: {fileID: 2007544421}
   settings: {fileID: 1135300540}
+  genderUI: {fileID: 1456347256}
 --- !u!4 &1961443265
 Transform:
   m_ObjectHideFlags: 0

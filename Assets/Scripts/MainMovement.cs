@@ -5,6 +5,8 @@ using UnityEngine.InputSystem;
 
 public class MainMovement : MonoBehaviour
 {
+    public static MainMovement instance;
+
     public float walkSpeed = 1.5f;
     public float sprintSpeed = 3f;
     public float jumpForce = 6f;
@@ -37,6 +39,7 @@ public class MainMovement : MonoBehaviour
     private Vector3 savedPosition;
     private bool haveSpawn = false;
     public Rigidbody bodypart;
+    public Vector3 bodypartInitialPosition;
     public GameObject spawnPoint;
 
     private List<Vector3> savePoints = new List<Vector3>();
@@ -58,11 +61,12 @@ public class MainMovement : MonoBehaviour
         ragdollColliders = GetComponentsInChildren<Collider>();
         mainCollider = GetComponent<Collider>();
 
+        bodypartInitialPosition = bodypart.transform.localPosition;
+
         SetRagdollState(false);
 
         startingPosition = spawnPoint.transform.position;
         savedPosition = startingPosition;
-        Debug.Log("Initial spawn point set to: " + startingPosition);
 
         movementAudioSource = gameObject.AddComponent<AudioSource>();
         movementAudioSource.loop = true;
@@ -106,9 +110,13 @@ public class MainMovement : MonoBehaviour
             if (isSprinting)
             {
                 movement *= sprintSpeed;
-                if (!SoundFXManager.instance.IsPlaying(SoundFXManager.instance.runClip) && isGrounded)
+                if (!SoundFXManager.instance.IsPlaying(SoundFXManager.instance.runClip) && isGrounded && GetActiveAnimator().GetBool("Move") == true)
                 {
                     SoundFXManager.instance.PlayLoopingSoundFX(SoundFXManager.instance.runClip, transform, 1.5f);
+                }
+                else if (GetActiveAnimator().GetBool("Move") == false)
+                {
+                    SoundFXManager.instance.StopLoopingSoundFX();
                 }
             }
             else if (isMoving) // Pokud se pohybuje, ale nesprintuje
@@ -162,10 +170,6 @@ public class MainMovement : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.R))
         {
             SetRagdollState(true);
-            if (!haveSpawn)
-            {
-                savedPosition = startingPosition;
-            }
         }
 
         if (isRagdollActive && bodypart.IsSleeping() && !DeathUI.activeInHierarchy)
@@ -243,6 +247,10 @@ public class MainMovement : MonoBehaviour
         {
             SetRagdollState(true);
             Debug.Log("Collided with: " + collision.gameObject.name);
+            GetActiveAnimator().SetBool("Sprint", false);
+            GetActiveAnimator().SetBool("Jump", false);
+            GetActiveAnimator().SetBool("Move", false);
+            GetActiveAnimator().SetBool("SuperJump", true);
         }
         else if (collision.gameObject.CompareTag("Save"))
         {
@@ -359,7 +367,7 @@ public class MainMovement : MonoBehaviour
         SetRagdollState(false);
     }
 
-    private Animator GetActiveAnimator()
+    public Animator GetActiveAnimator()
     {
         if (GenderManager.instance.isFemaleActive)
         {
@@ -404,6 +412,7 @@ public class MainMovement : MonoBehaviour
     //========================================================================================
     //Respawn function
     //========================================================================================
+
     public void UpdateSpawnPosition(Vector3 newSpawnPosition)
     {
         spawnPoint.transform.position = newSpawnPosition;
@@ -421,28 +430,26 @@ public class MainMovement : MonoBehaviour
     }
     public void Respawn()
     {
-        Vector3 respawnPosition;
+        if (isRespawned) return; // Zajistí, že se metoda spustí pouze jednou
 
         if (savePoints.Count > 0)
         {
             // Vezmi poslední save point
             Vector3 lastSavePoint = savePoints[savePoints.Count - 1];
-            respawnPosition = new Vector3(lastSavePoint.x, lastSavePoint.y + 3f, lastSavePoint.z);
+            savedPosition = new Vector3(lastSavePoint.x, lastSavePoint.y, lastSavePoint.z);
 
             // Odeber tento save point ze seznamu
             savePoints.RemoveAt(savePoints.Count - 1);
-
-            Debug.Log("Respawning at last save point: " + lastSavePoint);
         }
         else
         {
             // Pokud nejsou žádné save pointy, vrátíme se na základní spawn point
-            respawnPosition = new Vector3(spawnPoint.transform.position.x, spawnPoint.transform.position.y + 3f, spawnPoint.transform.position.z);
-            Debug.Log("Respawning at initial spawn point: " + spawnPoint.transform.position);
+            savedPosition = new Vector3(spawnPoint.transform.position.x, spawnPoint.transform.position.y, spawnPoint.transform.position.z);
         }
 
         // Nastav pozici postavy na respawn pozici
-        transform.position = respawnPosition;
+        Debug.Log("Should respawn at: " + savedPosition);
+        Debug.Log("Respawned on position: " + transform.position);
 
         // Reset death sound flag
         hasPlayedDeathSound = false;
@@ -454,33 +461,46 @@ public class MainMovement : MonoBehaviour
     {
         DeathUI.SetActive(false);
         haveSpawn = false;
-        savedPosition = startingPosition;
         SetRagdollState(false);
         Cursor.lockState = CursorLockMode.Locked;
         rb.velocity = Vector3.zero;
 
+        foreach (Rigidbody ragdollBody in ragdollBodies)
+        {
+            ragdollBody.isKinematic = false;
+            ragdollBody.velocity = Vector3.zero;
+        }
+
         // Pøehrát animaci IdleAnim nebo IdleWoman podle pohlaví
         if (GenderManager.instance.isFemaleActive)
         {
+            GetActiveAnimator().SetBool("Move", false);
+            GetActiveAnimator().SetBool("Sprint", false);
+            GetActiveAnimator().SetBool("Jump", false);
+            GetActiveAnimator().SetBool("SuperJump", false);
             femaleAnimator.Play("IdleWoman");
         }
         else if (GenderManager.instance.isMaleActive)
         {
+            GetActiveAnimator().SetBool("Move", false);
+            GetActiveAnimator().SetBool("Sprint", false);
+            GetActiveAnimator().SetBool("Jump", false);
+            GetActiveAnimator().SetBool("SuperJump", false);
             maleAnimator.Play("IdleAnim");
         }
 
-        if (ragdollBodies != null)
+        transform.position = savedPosition;
+
+        if (savePoints.Count > 0)
         {
-            foreach (Rigidbody ragdollBody in ragdollBodies)
-            {
-                if (ragdollBody != rb)
-                {
-                    ragdollBody.isKinematic = false;
-                    ragdollBody.velocity = Vector3.zero;
-                    ragdollBody.position = savedPosition;
-                }
-            }
+            savedPosition = savePoints[savePoints.Count - 1];
+            savePoints.RemoveAt(savePoints.Count - 1);
         }
+        else if (savePoints.Count == 0)
+        {
+            savedPosition = startingPosition;
+        }
+        //hlava se po respawnu jebe doprdele, idk proc - koukni zitra prosimte na to jak to funguje v ragdollu, ten to totiz vzdycky opravi...
     }
 
     private void PlayDeathSound()
