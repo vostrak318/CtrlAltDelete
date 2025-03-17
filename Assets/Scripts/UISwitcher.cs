@@ -9,6 +9,7 @@ public class UISwitcher : MonoBehaviour
     public GameObject deathUI;
     public GameObject settings;
     public GameObject genderUI;
+    public GameObject infoUI;
 
     private void Start()
     {
@@ -17,7 +18,7 @@ public class UISwitcher : MonoBehaviour
     }
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape) && pauseMenu.activeInHierarchy == false && deathUI.activeInHierarchy == false && settings.activeInHierarchy == false && genderUI.activeInHierarchy == false)
+        if (Input.GetKeyDown(KeyCode.Escape) && pauseMenu.activeInHierarchy == false && deathUI.activeInHierarchy == false && settings.activeInHierarchy == false && genderUI.activeInHierarchy == false && infoUI.activeInHierarchy == false)
         {
             pauseMenu.SetActive(true);
             Time.timeScale = 0;
@@ -29,9 +30,16 @@ public class UISwitcher : MonoBehaviour
             Time.timeScale = 1;
             Cursor.lockState = CursorLockMode.Locked;
         }
-        else if (Input.GetKeyDown(KeyCode.Escape) && pauseMenu.activeInHierarchy == false && deathUI.activeInHierarchy == false && settings.activeInHierarchy == true)
+        else if (Input.GetKeyDown(KeyCode.Escape) && pauseMenu.activeInHierarchy == false && deathUI.activeInHierarchy == false && settings.activeInHierarchy == true && infoUI.activeInHierarchy == false)
         {
             settings.SetActive(false);
+            pauseMenu.SetActive(true);
+            Time.timeScale = 0;
+            Cursor.lockState = CursorLockMode.None;
+        }
+        else if (Input.GetKeyDown(KeyCode.Escape) && pauseMenu.activeInHierarchy == false && deathUI.activeInHierarchy == false && settings.activeInHierarchy == false && infoUI.activeInHierarchy == true)
+        {
+            infoUI.SetActive(false);
             pauseMenu.SetActive(true);
             Time.timeScale = 0;
             Cursor.lockState = CursorLockMode.None;
@@ -61,6 +69,14 @@ public class UISwitcher : MonoBehaviour
     {
         pauseMenu.SetActive(true);
         settings.SetActive(false);
+        infoUI.SetActive(false);
+        Time.timeScale = 0;
+        Cursor.lockState = CursorLockMode.None;
+    }
+    public void OpenInfo()
+    {
+        pauseMenu.SetActive(false);
+        infoUI.SetActive(true);
         Time.timeScale = 0;
         Cursor.lockState = CursorLockMode.None;
     }
