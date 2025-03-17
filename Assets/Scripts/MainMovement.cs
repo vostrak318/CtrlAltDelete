@@ -490,6 +490,7 @@ public class MainMovement : MonoBehaviour
         }
 
         transform.position = savedPosition;
+        bodypart.isKinematic = true;
 
         if (savePoints.Count > 0)
         {
@@ -500,7 +501,6 @@ public class MainMovement : MonoBehaviour
         {
             savedPosition = startingPosition;
         }
-        //hlava se po respawnu jebe doprdele, idk proc - koukni zitra prosimte na to jak to funguje v ragdollu, ten to totiz vzdycky opravi...
     }
 
     private void PlayDeathSound()
