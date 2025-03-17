@@ -387,7 +387,7 @@ GameObject:
   - component: {fileID: 6359217359542858529}
   - component: {fileID: 6732332146248632143}
   m_Layer: 7
-  m_Name: FallingSave
+  m_Name: FallingSave 1
   m_TagString: Save
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
