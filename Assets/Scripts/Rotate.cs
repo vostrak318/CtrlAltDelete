@@ -8,6 +8,13 @@ public class Rotate : MonoBehaviour
     float speed = 0.2f;
     void Update()
     {
-        transform.Rotate(0, speed, 0);
+        if (UISwitcher.instance.infoUI.activeInHierarchy == true || UISwitcher.instance.settings.activeInHierarchy == true || UISwitcher.instance.pauseMenu.activeInHierarchy == true)
+        {
+            transform.Rotate(0, 0, 0);
+        }
+        else
+        {
+            transform.Rotate(0, speed, 0);
+        }
     }
 }

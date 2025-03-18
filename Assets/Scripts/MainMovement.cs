@@ -169,6 +169,10 @@ public class MainMovement : MonoBehaviour
         // Activate ragdoll on pressing R
         if (Input.GetKeyDown(KeyCode.R))
         {
+            if (isRagdollActive == false)
+            {
+                SoundFXManager.instance.PlaySoundFXClip(SoundFXManager.instance.ragdollClip, transform, 0.3f);
+            }
             SetRagdollState(true);
         }
 
@@ -300,7 +304,6 @@ public class MainMovement : MonoBehaviour
             {
                 if (ragdollBody != rb)
                 {
-                    SoundFXManager.instance.PlaySoundFXClip(SoundFXManager.instance.ragdollClip, transform, 0.1f);
                     ragdollBody.isKinematic = false;
                     ragdollBody.velocity = rb.velocity;
                     ragdollBody.AddForce(savedVelocity, ForceMode.Impulse);
@@ -355,6 +358,24 @@ public class MainMovement : MonoBehaviour
             {
                 rb.isKinematic = false;
                 mainCollider.enabled = true;
+            }
+
+            // Pøehrát animaci IdleAnim nebo IdleWoman podle pohlaví
+            if (GenderManager.instance.isFemaleActive)
+            {
+                GetActiveAnimator().SetBool("Move", false);
+                GetActiveAnimator().SetBool("Sprint", false);
+                GetActiveAnimator().SetBool("Jump", false);
+                GetActiveAnimator().SetBool("SuperJump", false);
+                femaleAnimator.Play("IdleWoman");
+            }
+            else if (GenderManager.instance.isMaleActive)
+            {
+                GetActiveAnimator().SetBool("Move", false);
+                GetActiveAnimator().SetBool("Sprint", false);
+                GetActiveAnimator().SetBool("Jump", false);
+                GetActiveAnimator().SetBool("SuperJump", false);
+                maleAnimator.Play("IdleAnim");
             }
 
             transform.position = bodypart.transform.position;

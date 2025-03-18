@@ -15,8 +15,18 @@ public class FallingSaveScript : MonoBehaviour
 
             Instantiate(spawnedObject, spawnPosition, Quaternion.identity);
 
-            Destroy(gameObject);
+            StartCoroutine(ReactivateCheckpoint());
+
+            gameObject.SetActive(false);
         }
     }
-}
 
+    private IEnumerator ReactivateCheckpoint()
+    {
+        // Èekat 8 minut (480 sekund)
+        yield return new WaitForSeconds(480);
+
+        // Znovu aktivovat checkpoint
+        gameObject.SetActive(true);
+    }
+}

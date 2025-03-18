@@ -5,6 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class UISwitcher : MonoBehaviour
 {
+    public static UISwitcher instance;
+
     public GameObject pauseMenu;
     public GameObject deathUI;
     public GameObject settings;
@@ -15,7 +17,18 @@ public class UISwitcher : MonoBehaviour
     {
         pauseMenu.SetActive(false);
         settings.SetActive(false);
+        infoUI.SetActive(false);
+        deathUI.SetActive(false);
     }
+
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+    }
+
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape) && pauseMenu.activeInHierarchy == false && deathUI.activeInHierarchy == false && settings.activeInHierarchy == false && genderUI.activeInHierarchy == false && infoUI.activeInHierarchy == false)
