@@ -13,6 +13,7 @@ public class MapEnd : MonoBehaviour
             if (SceneManager.sceneCountInBuildSettings > nextSceneIndex)
             {
                 SceneManager.LoadScene(nextSceneIndex);
+                Cursor.lockState = CursorLockMode.None;
             }
             else
             {

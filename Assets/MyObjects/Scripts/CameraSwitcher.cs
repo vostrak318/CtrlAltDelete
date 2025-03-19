@@ -81,6 +81,7 @@ public class CameraSwitcher : MonoBehaviour
         GameObject deathUI = GameObject.Find("DeathUI");
         GameObject pauseMenu = GameObject.Find("PauseMenu");
         GameObject settings = GameObject.Find("SettingsMenu");
+        GameObject infoMenu = GameObject.Find("InfoUI");
         return deathUI != null && deathUI.activeInHierarchy && pauseMenu != null && pauseMenu.activeInHierarchy && settings != null && settings.activeInHierarchy;
     }
 }
