@@ -16,6 +16,7 @@ public class MapEnd : MonoBehaviour
             }
             else
             {
+                Cursor.lockState = CursorLockMode.None;
                 SceneManager.LoadScene(0);
             }
         }

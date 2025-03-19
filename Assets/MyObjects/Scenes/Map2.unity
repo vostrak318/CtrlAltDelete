@@ -15975,12 +15975,12 @@ MonoBehaviour:
     RMB
     - Switching Cameras
 
-    E - Picking up Item
+    E - Picking up Item / Dropping an item
 
-    R - Manual Ragdoll
+    R - Manual
+    Ragdoll
 
-    WASD,
-    L. Shift, Space - Basic Movement
+    WASD, L. Shift, Space - Basic Movement
 
     Esc - Stop Menu'
   m_isRightToLeft: 0

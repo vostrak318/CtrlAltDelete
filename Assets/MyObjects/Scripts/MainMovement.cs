@@ -52,6 +52,8 @@ public class MainMovement : MonoBehaviour
 
     void Start()
     {
+        instance = this;
+
         rb = GetComponent<Rigidbody>();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;

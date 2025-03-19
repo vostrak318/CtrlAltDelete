@@ -11,6 +11,7 @@ TagManager:
   - Trap
   - Save
   - Platform
+  - Ball
   layers:
   - Default
   - TransparentFX
